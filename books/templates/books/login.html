@@ -40,7 +40,11 @@
                 <div class="alert alert-success">{{ message }}</div>
             {% endfor %}
         {% endif %}
-        
+                <!-- Display authentication error message -->
+        {% if error_message %}
+            <div class="alert alert-danger">{{ error_message }}</div>
+        {% endif %}
+
         <form method="post" novalidate>
             {% csrf_token %}
             
