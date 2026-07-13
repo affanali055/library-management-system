@@ -18,7 +18,19 @@ class BookListAPIView(APIView):
 
 def book_list(request):
     books = Book.objects.all()
-    return render(request, "books/book_list.html", {"books": books})
+    total_books = books.count()
+    available_books = books.filter(available=True).count()
+    issued_books = books.filter(available=False).count()
+    total_members = 12  # Dummy value for UI summary cards
+    
+    context = {
+        "books": books,
+        "total_books": total_books,
+        "available_books": available_books,
+        "issued_books": issued_books,
+        "total_members": total_members,
+    }
+    return render(request, "books/book_list.html", context)
 
 
 def add_book(request):
