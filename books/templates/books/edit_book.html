@@ -1,0 +1,122 @@
+<!-- books/templates/books/edit_book.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Book</title>
+    <!-- Links to your custom CSS -->
+    <link rel="stylesheet" href="{% static 'books/style.css' %}">
+    <style>
+        .form-card {
+            max-width: 600px;
+            margin: 50px auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .form-control {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .btn-submit {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-submit:hover {
+            background-color: #2980b9;
+        }
+        .btn-cancel {
+            background-color: #95a5a6;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-left: 10px;
+            display: inline-block;
+            transition: background-color 0.2s;
+        }
+        .btn-cancel:hover {
+            background-color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-card">
+            <h2 style="color: #2c3e50; margin-bottom: 25px;">Edit Book Details</h2>
+            <form method="post" novalidate>
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="{{ form.title.id_for_label }}" class="form-label">Book Title</label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                        <div style="color: red; font-size: 13px; mt-1">{{ form.title.errors|join:", " }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.author.id_for_label }}" class="form-label">Author</label>
+                    {{ form.author }}
+                    {% if form.author.errors %}
+                        <div style="color: red; font-size: 13px; mt-1">{{ form.author.errors|join:", " }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.price.id_for_label }}" class="form-label">Price</label>
+                    {{ form.price }}
+                    {% if form.price.errors %}
+                        <div style="color: red; font-size: 13px; mt-1">{{ form.price.errors|join:", " }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.published_year.id_for_label }}" class="form-label">Published Year</label>
+                    {{ form.published_year }}
+                    {% if form.published_year.errors %}
+                        <div style="color: red; font-size: 13px; mt-1">{{ form.published_year.errors|join:", " }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" style="display: inline-block; font-weight: normal; cursor: pointer;">
+                        {{ form.available }} Available for Borrowing
+                    </label>
+                    {% if form.available.errors %}
+                        <div style="color: red; font-size: 13px; mt-1">{{ form.available.errors|join:", " }}</div>
+                    {% endif %}
+                </div>
+
+                <div style="margin-top: 25px;">
+                    <button type="submit" class="btn-submit">Update Book</button>
+                    <a href="{% url 'book-list' %}" class="btn-cancel">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

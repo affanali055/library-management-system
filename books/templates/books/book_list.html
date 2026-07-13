@@ -48,7 +48,9 @@
                             {% endif %}
                         </td>
                         <td>
-                            <button class="btn-action btn-edit">✏️ Edit</button>
+                        <a href="{% url 'edit-book' book.id %}" class="btn-action btn-edit" style="text-decoration: none;">✏️ Edit</a>
+
+
                             <button class="btn-action btn-delete">🗑 Delete</button>
                         </td>
                     </tr>
