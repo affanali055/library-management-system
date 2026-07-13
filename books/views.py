@@ -3,10 +3,10 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework.response import Response
-
+from django.contrib.auth import authenticate, login
 from .models import Book
 from .serializers import BookSerializer
-from .forms import BookForm, UserRegisterForm
+from .forms import BookForm, UserRegisterForm,LoginForm
 
 
 class BookListAPIView(APIView):
@@ -78,3 +78,23 @@ def register(request):
         form = UserRegisterForm()
 
     return render(request, "books/register.html", {"form": form})
+def login_view(request):
+    error_message = None
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            
+            # Authenticate the user
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                messages.success(request, f"Welcome back, {username}!")
+                return redirect('book-list')
+            else:
+                error_message = "Invalid username or password."
+    else:
+        form = LoginForm()
+        
+    return render(request, 'books/login.html', {'form': form, 'error_message': error_message})

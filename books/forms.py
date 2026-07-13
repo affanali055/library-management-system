@@ -55,3 +55,12 @@ class UserRegisterForm(forms.Form):
         if password and confirm_password and password != confirm_password:
             raise ValidationError("Passwords do not match.")
         return cleaned_data
+# Add at the bottom of books/forms.py
+
+class LoginForm(forms.Form):
+    username = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Username'})
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Enter Password'})
+    )
