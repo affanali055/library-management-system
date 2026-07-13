@@ -9,4 +9,6 @@ urlpatterns = [
     path("add/", add_book, name="add-book"),
     path("edit/<int:id>/", edit_book, name="edit-book"),
     path("register/", register, name="register"),
+    path("login/", login_view, name="login"),
+
 ]
