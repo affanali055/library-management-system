@@ -31,3 +31,21 @@ def add_book(request):
 def book_list(request):
     books = Book.objects.all()
     return render(request, "books/book_list.html", {"books": books})
+
+# Add this at the bottom of books/views.py
+
+def edit_book(request, id):
+    # Fetch the specific book from the database
+    book = Book.objects.get(id=id)
+    
+    if request.method == 'POST':
+        # Bind the form to POST data and the existing book instance
+        form = BookForm(request.POST, instance=book)
+        if form.is_valid():
+            form.save()  # Save database updates
+            return redirect('book-list')  # Redirect back to Book List
+    else:
+        # Prepopulate the form with the current book details
+        form = BookForm(instance=book)
+        
+    return render(request, 'books/edit_book.html', {'form': form, 'book': book})
