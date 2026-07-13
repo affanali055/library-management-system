@@ -28,4 +28,6 @@ def add_book(request):
         form = BookForm()
     
     return render(request, 'books/add_book.html', {'form': form})
-
+def book_list(request):
+    books = Book.objects.all()
+    return render(request, "books/book_list.html", {"books": books})
