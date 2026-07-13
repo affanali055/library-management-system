@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Books</title>
+    <!-- Simple Custom CSS link -->
+    <link rel="stylesheet" href="{% static 'books/style.css' %}">
+</head>
+<body>
+    <div class="container">
+        <!-- Top Bar with Header, Search Bar, and Add Book button -->
+        <div class="header-bar">
+            <h1>Library Books</h1>
+            <div class="controls">
+                <input type="text" placeholder="Search by title..." class="search-input">
+                <a href="{% url 'add-book' %}" class="btn-add">+ Add Book</a>
+            </div>
+        </div>
+
+        <!-- Book List Table -->
+        <div class="table-responsive">
+            <table class="book-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>ISBN</th>
+                        <th>Category</th>
+                        <th>Available Copies</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for book in books %}
+                    <tr>
+                        <td><strong>{{ book.title }}</strong></td>
+                        <td>{{ book.author }}</td>
+                        <!-- Displays default values if ISBN or Category are not yet in the DB model -->
+                        <td>{{ book.isbn|default:"N/A" }}</td>
+                        <td>{{ book.category|default:"General" }}</td>
+                        <td>
+                            {% if book.available %}
+                                1
+                            {% else %}
+                                0
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="btn-action btn-edit">✏️ Edit</button>
+                            <button class="btn-action btn-delete">🗑 Delete</button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="no-books">No books available in the database.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
