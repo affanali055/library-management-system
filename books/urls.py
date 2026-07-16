@@ -1,5 +1,6 @@
+# pyrefly: ignore [missing-import]
 from django.urls import path
-from .views import BookListAPIView, add_book, book_list, edit_book, register, login_view, delete_book
+from .views import BookListAPIView, add_book, book_list, edit_book, register, login_view, delete_book,borrow_book,return_book 
 
 
 urlpatterns = [
@@ -10,5 +11,7 @@ urlpatterns = [
     path("register/", register, name="register"),
     path("login/", login_view, name="login"),
     path("delete/<int:id>/", delete_book, name="delete-book"),
+    path("borrow/<int:id>/", borrow_book, name="borrow-book"),
+    path("return/<int:id>/", return_book, name="return-book"), 
 
 ] 

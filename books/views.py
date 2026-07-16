@@ -9,6 +9,10 @@ from .models import Book
 from .serializers import BookSerializer
 from .forms import BookForm, UserRegisterForm,LoginForm
 from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+from .models import Book, BookLoan
+
 
 
 
@@ -133,3 +137,35 @@ def delete_book(request, id):
     book.delete()
     messages.success(request, "Book deleted successfully!")
     return redirect("book-list")
+@login_required
+def borrow_book(request, id):
+    book = get_object_or_404(Book, id=id)
+    if book.available:
+        book.available = False
+        book.save()
+        # Create loan record
+        BookLoan.objects.create(
+            book=book,
+            user=request.user,
+            borrowed_at=timezone.now()
+        )
+        messages.success(request, f"You successfully borrowed '{book.title}'!")
+    else:
+        messages.error(request, "This book is already borrowed.")
+    return redirect("book-list")
+
+@login_required
+def return_book(request, id):
+    book = get_object_or_404(Book, id=id)
+    # Find the active loan for this book
+    loan = BookLoan.objects.filter(book=book, returned_at__isnull=True).first()
+    if loan:
+        loan.returned_at = timezone.now()
+        loan.save()
+        book.available = True
+        book.save()
+        messages.success(request, f"You successfully returned '{book.title}'!")
+    else:
+        messages.error(request, "No active borrow record found for this book.")
+    return redirect("book-list")
+

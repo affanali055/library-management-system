@@ -482,17 +482,34 @@
                             </td>
                             <td>
                                 <div class="action-cell">
+                                {% if book.available %}
+                                <form method="POST" action="{% url 'borrow-book' book.id %}" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-action" style="color: #10B981; margin-right: 8px;">
+                                            <i class="fa-solid fa-hand-holding-hand"></i> Borrow
+                                        </button>
+                                    </form>
+                                    {% else %}
+                                    <form method="POST" action="{% url 'return-book' book.id %}" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-action" style="color: #F59E0B; margin-right: 8px;">
+                                            <i class="fa-solid fa-arrow-rotate-left"></i> Return
+                                        </button>
+                                    </form>
+                                    {% endif %}
+
                                     <a href="{% url 'edit-book' book.id %}" class="btn-action btn-edit">
                                         <i class="fa-solid fa-pen"></i> Edit
-                                     </a>
+                                    </a>
+
                                     <form method="POST" action="{% url 'delete-book' book.id %}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete &quot;{{ book.title }}&quot;?');">
                                         {% csrf_token %}
-                                         <button type="submit" class="btn-action btn-delete">
+                                        <button type="submit" class="btn-action btn-delete">
                                             <i class="fa-solid fa-trash-can"></i> Delete
                                         </button>
                                     </form>
-
                                 </div>
+
                             </td>
                         </tr>
                         {% empty %}
