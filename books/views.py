@@ -20,20 +20,26 @@ class BookListAPIView(APIView):
         serializer = BookSerializer(books, many=True)
         return Response(serializer.data)
 
+
+# In books/views.py (Replace book_list):
+
 @login_required
 def book_list(request):
-    # Get search query from URL parameter 'q'
     query = request.GET.get('q')
+    category_filter = request.GET.get('category')
     
+    books = Book.objects.all()
+
+    # Apply text query search
     if query:
-        # Filter books matching title OR author
-        books = Book.objects.filter(
+        books = books.filter(
             Q(title__icontains=query) | Q(author__icontains=query)
         )
-    else:
-        books = Book.objects.all()
+        
+    # Apply category dropdown filter
+    if category_filter and category_filter != 'All':
+        books = books.filter(category=category_filter)
 
-    # Dashboard summary cards stats (overall library count)
     total_books = Book.objects.count()
     available_books = Book.objects.filter(available=True).count()
     issued_books = Book.objects.filter(available=False).count()
@@ -46,6 +52,8 @@ def book_list(request):
         "issued_books": issued_books,
         "total_members": total_members,
         "active_tab": "books",
+        # Pass select choice back to template
+        "selected_category": category_filter or 'All'
     }
     return render(request, "books/book_list.html", context)
 
@@ -179,6 +187,10 @@ def return_book(request, id):
     return redirect("book-list")
 
    
+# In books/views.py (Replace dashboard_view):
+
+# Replace lines 192 to 223 in books/views.py with this code:
+
 @login_required
 def dashboard_view(request):
     total_books = Book.objects.count()
@@ -186,8 +198,23 @@ def dashboard_view(request):
     issued_books = Book.objects.filter(available=False).count()
     total_members = User.objects.count()
     
+    # Category statistics for the bar chart
+    fiction_count = Book.objects.filter(category='Fiction').count()
+    science_count = Book.objects.filter(category='Science').count()
+    history_count = Book.objects.filter(category='History').count()
+    biography_count = Book.objects.filter(category='Biography').count()
+    general_count = Book.objects.filter(category='General').count()
+
     # Fetch 5 most recent borrow activities
     recent_loans = BookLoan.objects.all().order_by('-borrowed_at')[:5]
+    
+    # OVERDUE BOOKS: Find loans by current user that are not returned and past their due date
+    today = timezone.now().date()
+    overdue_books = BookLoan.objects.filter(
+        user=request.user, 
+        returned_at__isnull=True, 
+        due_date__lt=today
+    )
     
     context = {
         "total_books": total_books,
@@ -195,6 +222,13 @@ def dashboard_view(request):
         "issued_books": issued_books,
         "total_members": total_members,
         "recent_loans": recent_loans,
+        # Category values passed to JavaScript
+        "fiction_count": fiction_count,
+        "science_count": science_count,
+        "history_count": history_count,
+        "biography_count": biography_count,
+        "general_count": general_count,
+        "overdue_books": overdue_books,          # <--- Add this here
         "active_tab": "dashboard",
     }
     return render(request, "dashboard.html", context)
