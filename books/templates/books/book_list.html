@@ -440,15 +440,12 @@
         </section>
 
         <!-- Search Bar and Add Action row -->
-        <div class="controls-row">
-            <div class="search-box-wrapper">
-                <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="text" placeholder="Search books by title, author or ISBN...">
-            </div>
-            <a href="{% url 'add-book' %}" class="btn-primary">
-                <i class="fa-solid fa-plus"></i> Add Book
-            </a>
-        </div>
+    <form method="GET" action="{% url 'book-list' %}" class="search-box-wrapper">
+    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+    <input type="text" name="q" placeholder="Search books by title or author..." value="{{ request.GET.q|default:'' }}">
+    </form>
+
+ 
 
         <!-- Main Books Table -->
         <div class="table-card">
@@ -487,10 +484,14 @@
                                 <div class="action-cell">
                                     <a href="{% url 'edit-book' book.id %}" class="btn-action btn-edit">
                                         <i class="fa-solid fa-pen"></i> Edit
-                                    </a>
-                                    <button class="btn-action btn-delete">
-                                        <i class="fa-solid fa-trash-can"></i> Delete
-                                    </button>
+                                     </a>
+                                    <form method="POST" action="{% url 'delete-book' book.id %}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete &quot;{{ book.title }}&quot;?');">
+                                        {% csrf_token %}
+                                         <button type="submit" class="btn-action btn-delete">
+                                            <i class="fa-solid fa-trash-can"></i> Delete
+                                        </button>
+                                    </form>
+
                                 </div>
                             </td>
                         </tr>

@@ -1,12 +1,15 @@
 from django.shortcuts import render, redirect,get_object_or_404 
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.db.models import Q
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import authenticate, login
 from .models import Book
 from .serializers import BookSerializer
 from .forms import BookForm, UserRegisterForm,LoginForm
+from django.views.decorators.http import require_POST
+
 
 
 class BookListAPIView(APIView):
@@ -14,14 +17,23 @@ class BookListAPIView(APIView):
         books = Book.objects.all()
         serializer = BookSerializer(books, many=True)
         return Response(serializer.data)
-
-
 def book_list(request):
-    books = Book.objects.all()
-    total_books = books.count()
-    available_books = books.filter(available=True).count()
-    issued_books = books.filter(available=False).count()
-    total_members = User.objects.count()  # Dummy value for UI summary cards
+    # Get search query from URL parameter 'q'
+    query = request.GET.get('q')
+    
+    if query:
+        # Filter books matching title OR author
+        books = Book.objects.filter(
+            Q(title__icontains=query) | Q(author__icontains=query)
+        )
+    else:
+        books = Book.objects.all()
+
+    # Dashboard summary cards stats (overall library count)
+    total_books = Book.objects.count()
+    available_books = Book.objects.filter(available=True).count()
+    issued_books = Book.objects.filter(available=False).count()
+    total_members = User.objects.count()
     
     context = {
         "books": books,
@@ -31,6 +43,9 @@ def book_list(request):
         "total_members": total_members,
     }
     return render(request, "books/book_list.html", context)
+
+
+
 
 
 def add_book(request):
@@ -110,3 +125,11 @@ def login_view(request):
         form = LoginForm()
         
     return render(request, 'books/login.html', {'form': form, 'error_message': error_message})
+
+
+@require_POST
+def delete_book(request, id):
+    book = get_object_or_404(Book, id=id)
+    book.delete()
+    messages.success(request, "Book deleted successfully!")
+    return redirect("book-list")
