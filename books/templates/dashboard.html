@@ -151,6 +151,7 @@
 .badge-returned { background-color: #ECFDF5; color: #059669; }
 {% endblock %}
 
+<!-- Replace lines 154 to 167 in dashboard.html with this: -->
 {% block content %}
 <div class="page-header">
     <h1>Dashboard</h1>
@@ -158,6 +159,18 @@
         <i class="fa-solid fa-plus"></i> Add New Book
     </a>
 </div>
+
+
+<!-- Put this banner right here (below the closing div on line 160) -->
+{% if overdue_books %}
+<div style="background-color: #FEF2F2; border: 1px solid #FCA5A5; border-radius: 12px; padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: center; gap: 16px; color: #991B1B;">
+    <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; color: #EF4444;"></i>
+    <div>
+        <h4 style="font-weight: 700; font-size: 15px; margin-bottom: 2px;">Overdue Book Alerts!</h4>
+        <p style="font-size: 13px; color: #B91C1C;">You have <strong>{{ overdue_books.count }}</strong> book(s) past their return due date. Please return them as soon as possible.</p>
+    </div>
+</div>
+{% endif %}
 
 <!-- Key Metric Statistics -->
 <section class="stats-grid">
@@ -240,18 +253,72 @@
             {% endfor %}
         </ul>
     </div>
-
-    <!-- Book Category Breakdown Graphic Chart -->
+        <!-- Book Category Breakdown Graphic Chart -->
     <div class="card">
         <h3 class="card-title">Book Status Breakdown</h3>
         <div style="position: relative; height: 220px; width: 100%;">
             <canvas id="booksChart"></canvas>
         </div>
     </div>
-</div>
+
+    <!-- New Category Breakdown Chart (Add this here) -->
+    <div class="card">
+        <h3 class="card-title">Book Categories</h3>
+        <div style="position: relative; height: 220px; width: 100%;">
+            <canvas id="categoryChart"></canvas>
+        </div>
+    </div>
+
+</div> <!-- This closing div on line 251 stays here -->
 {% endblock %}
 
+
 {% block extra_js %}
+// Add this script inside document.addEventListener("DOMContentLoaded", function() { ... }):
+
+const catCtx = document.getElementById('categoryChart').getContext('2d');
+new Chart(catCtx, {
+    type: 'bar',
+    data: {
+        labels: ['Fiction', 'Science', 'History', 'Biography', 'General'],
+        datasets: [{
+            label: 'Books Count',
+            data: [
+                {{ fiction_count }}, 
+                {{ science_count }}, 
+                {{ history_count }}, 
+                {{ biography_count }}, 
+                {{ general_count }}
+            ],
+            backgroundColor: [
+                'rgba(79, 70, 229, 0.8)', // Indigo
+                'rgba(16, 185, 129, 0.8)', // Emerald
+                'rgba(245, 158, 11, 0.8)', // Amber
+                'rgba(59, 130, 246, 0.8)', // Blue
+                'rgba(107, 114, 128, 0.8)' // Gray
+            ],
+            borderRadius: 6
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: { color: '#F1F5F9' },
+                ticks: { precision: 0 }
+            },
+            x: {
+                grid: { display: false }
+            }
+        }
+    }
+});
+
 <!-- Import Chart.js library to render the graphic widget -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
