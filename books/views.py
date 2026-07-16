@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect,get_object_or_404 
 from django.contrib import messages
 from django.contrib.auth.models import User
 from rest_framework.views import APIView
@@ -21,7 +21,7 @@ def book_list(request):
     total_books = books.count()
     available_books = books.filter(available=True).count()
     issued_books = books.filter(available=False).count()
-    total_members = 12  # Dummy value for UI summary cards
+    total_members = User.objects.count()  # Dummy value for UI summary cards
     
     context = {
         "books": books,
@@ -47,7 +47,7 @@ def add_book(request):
 
 
 def edit_book(request, id):
-    book = Book.objects.get(id=id)
+    book = get_object_or_404(Book, id=id)
 
     if request.method == "POST":
         form = BookForm(request.POST, instance=book)
