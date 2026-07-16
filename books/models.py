@@ -2,16 +2,26 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-
 class Book(models.Model):
     title = models.CharField(max_length=200)
     author = models.CharField(max_length=100)
     price = models.DecimalField(max_digits=8, decimal_places=2)
     published_year = models.IntegerField()
     available = models.BooleanField(default=True)
+    
+    # Category field options
+    CATEGORY_CHOICES = [
+        ('Fiction', 'Fiction'),
+        ('Science', 'Science & Tech'),
+        ('History', 'History'),
+        ('Biography', 'Biography'),
+        ('General', 'General'),
+    ]
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='General')
 
     def __str__(self):
         return self.title 
+
 class BookLoan(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="loans")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="loans")
@@ -21,4 +31,3 @@ class BookLoan(models.Model):
 
     def __str__(self):
         return f"{self.user.username} borrowed {self.book.title}"
-

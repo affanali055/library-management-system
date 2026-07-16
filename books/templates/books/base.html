@@ -1,0 +1,185 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Library Management System{% endblock %}</title>
+    <!-- CSS Library Links -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Shared Core Design Tokens & Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #F8FAFC;
+            color: #111827;
+            padding-bottom: 50px;
+        }
+
+        /* Top Navbar */
+        .top-navbar {
+            background-color: #FFFFFF;
+            border-bottom: 1px solid #E5E7EB;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-area {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111827;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .user-area {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        /* Sub Navigation / Menu */
+        .sub-navbar {
+            background-color: #FFFFFF;
+            border-bottom: 1px solid #E5E7EB;
+            padding: 0 32px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 24px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #6B7280;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+            padding: 14px 0;
+            display: inline-block;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: #4F46E5;
+            border-bottom: 2px solid #4F46E5;
+        }
+
+        /* Main Workspace Container */
+        .container {
+            max-width: 1200px;
+            margin: 32px auto 0 auto;
+            padding: 0 20px;
+        }
+
+        .page-header {
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        /* Alert notifications */
+        .alert-container {
+            margin-bottom: 20px;
+        }
+        .alert-box {
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .alert-success {
+            background-color: #DCFCE7;
+            color: #15803D;
+            border: 1px solid #BBF7D0;
+        }
+        .alert-danger {
+            background-color: #FEE2E2;
+            color: #B91C1C;
+            border: 1px solid #FCA5A5;
+        }
+        .close-alert {
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-weight: bold;
+            color: inherit;
+        }
+        
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <header class="top-navbar">
+        <a href="{% url 'dashboard' %}" class="logo-area">
+            <i class="fa-solid fa-book-open" style="color: #4F46E5;"></i> Library Management
+        </a>
+        <div class="user-area">
+            <i class="fa-regular fa-circle-user"></i> {% if user.first_name %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}
+        </div>
+    </header>
+
+    <!-- Sub Navigation Menu -->
+    <nav class="sub-navbar">
+        <ul class="nav-links">
+            <li><a href="{% url 'dashboard' %}" class="{% if active_tab == 'dashboard' %}active{% endif %}">Dashboard</a></li>
+            <li><a href="{% url 'book-list' %}" class="{% if active_tab == 'books' %}active{% endif %}">Books</a></li>
+            <li><a href="{% url 'users' %}" class="{% if active_tab == 'users' %}active{% endif %}">Users</a></li>
+            <li><a href="{% url 'settings' %}" class="{% if active_tab == 'settings' %}active{% endif %}">Settings</a></li>
+            <li><a href="{% url 'logout' %}">Logout</a></li>
+        </ul>
+    </nav>
+
+    <!-- Workspace Area -->
+    <main class="container">
+        <!-- Message Notification center -->
+        {% if messages %}
+        <div class="alert-container">
+            {% for message in messages %}
+            <div class="alert-box {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %}">
+                <span>{{ message }}</span>
+                <button class="close-alert" onclick="this.parentElement.style.display='none';">&times;</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

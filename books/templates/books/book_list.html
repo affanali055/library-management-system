@@ -1,542 +1,293 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Library Books Dashboard</title>
-    <!-- Simple Custom CSS link or Embedded Stylesheet for maximum style safety -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        /* General Styles */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #F8FAFC;
-            color: #111827;
-            padding-bottom: 50px;
-        }
+{% extends 'books/base.html' %}
 
-        /* Top Navbar */
-        .top-navbar {
-            background-color: #FFFFFF;
-            border-bottom: 1px solid #E5E7EB;
-            height: 70px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 32px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
+{% block title %}Books Dashboard - Library{% endblock %}
 
-        .logo-area {
-            font-size: 20px;
-            font-weight: 700;
-            color: #111827;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+{% block extra_css %}
+/* Action Controls Layout */
+.controls-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
 
-        .user-area {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 600;
-            color: #374151;
-        }
+/* Search input styling */
+.search-box-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 380px;
+}
 
-        /* Sub Navigation / Menu */
-        .sub-navbar {
-            background-color: #FFFFFF;
-            border-bottom: 1px solid #E5E7EB;
-            padding: 0 32px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-        }
+.search-box-wrapper input {
+    width: 100%;
+    height: 46px;
+    border-radius: 10px;
+    border: 1px solid #D1D5DB;
+    padding: 12px 16px 12px 42px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
 
-        .nav-links {
-            display: flex;
-            list-style: none;
-            gap: 24px;
-        }
+.search-box-wrapper input:focus {
+    border-color: #4F46E5;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+}
 
-        .nav-links a {
-            text-decoration: none;
-            color: #6B7280;
-            font-size: 14px;
-            font-weight: 500;
-            transition: color 0.2s;
-            padding: 14px 0;
-            display: inline-block;
-        }
+.search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9CA3AF;
+    font-size: 16px;
+}
 
-        .nav-links a:hover, .nav-links a.active {
-            color: #4F46E5;
-            border-bottom: 2px solid #4F46E5;
-        }
+/* Table Card Container */
+.table-card {
+    background-color: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+    overflow: hidden;
+    margin-top: 24px;
+}
 
-        /* Main Workspace Container */
-        .container {
-            max-width: 1200px;
-            margin: 32px auto 0 auto;
-            padding: 0 20px;
-        }
+.table-responsive {
+    overflow-x: auto;
+}
 
-        .page-header {
-            margin-bottom: 24px;
-        }
+.book-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
 
-        .page-header h1 {
-            font-size: 28px;
-            font-weight: 700;
-            color: #111827;
-        }
+.book-table th {
+    background-color: #F8FAFC;
+    color: #374151;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 16px 24px;
+    border-bottom: 1px solid #E5E7EB;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
 
-        /* Dashboard Summary Cards Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 24px;
-            margin-bottom: 32px;
-        }
+.book-table td {
+    padding: 16px 24px;
+    border-bottom: 1px solid #E5E7EB;
+    font-size: 14px;
+    color: #111827;
+}
 
-        .stat-card {
-            background-color: #FFFFFF;
-            border: 1px solid #E5E7EB;
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
+.book-table tbody tr {
+    transition: background-color 0.2s;
+}
 
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 35px rgba(15, 23, 42, 0.06);
-        }
+.book-table tbody tr:hover {
+    background-color: #F9FAFB;
+}
 
-        .stat-info h3 {
-            font-size: 14px;
-            color: #6B7280;
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
+/* Status Badges */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 600;
+}
 
-        .stat-info .stat-number {
-            font-size: 28px;
-            font-weight: 700;
-            color: #111827;
-        }
+.status-available {
+    background-color: #DCFCE7;
+    color: #166534;
+}
 
-        .stat-icon-box {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
+.status-issued {
+    background-color: #FEF3C7;
+    color: #92400E;
+}
 
-        .bg-books { background-color: #EEF2F6; color: #4F46E5; }
-        .bg-available { background-color: #ECFDF5; color: #10B981; }
-        .bg-issued { background-color: #FFFBEB; color: #F59E0B; }
-        .bg-members { background-color: #EFF6FF; color: #3B82F6; }
+/* Action Buttons inside Table */
+.action-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
 
-        /* Action Controls Layout */
-        .controls-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
 
-        /* Search input styling */
-        .search-box-wrapper {
-            position: relative;
-            width: 100%;
-            max-width: 380px;
-        }
+.btn-edit {
+    color: #2563EB;
+}
 
-        .search-box-wrapper input {
-            width: 100%;
-            height: 46px;
-            border-radius: 10px;
-            border: 1px solid #D1D5DB;
-            padding: 12px 16px 12px 42px;
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
+.btn-delete {
+    color: #EF4444;
+}
 
-        .search-box-wrapper input:focus {
-            border-color: #4F46E5;
-            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
-        }
+.btn-action:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
 
-        .search-icon {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #9CA3AF;
-            font-size: 16px;
-        }
+/* Empty state styling */
+.empty-row-cell {
+    text-align: center;
+    color: #6B7280;
+    padding: 40px !important;
+}
 
-        /* Add Book Button */
-        .btn-primary {
-            background-color: #4F46E5;
-            color: #FFFFFF;
-            height: 46px;
-            border: none;
-            border-radius: 10px;
-            padding: 0 20px;
-            font-weight: 600;
-            font-size: 14px;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
-            transition: background-color 0.2s, transform 0.2s;
-        }
+/* Pagination placeholder at bottom */
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-top: 1px solid #E5E7EB;
+    background-color: #FFFFFF;
+}
 
-        .btn-primary:hover {
-            background-color: #4338CA;
-            transform: translateY(-1px);
-        }
+.pagination-info {
+    font-size: 13px;
+    color: #6B7280;
+}
 
-        /* Table Card Container */
-        .table-card {
-            background-color: #FFFFFF;
-            border: 1px solid #E5E7EB;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
-            overflow: hidden;
-        }
+.pagination-buttons {
+    display: flex;
+    gap: 8px;
+}
 
-        .table-responsive {
-            overflow-x: auto;
-        }
+.btn-page {
+    background-color: #FFFFFF;
+    border: 1px solid #D1D5DB;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
 
-        .book-table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-        }
+.btn-page:hover {
+    background-color: #F9FAFB;
+    border-color: #C7D2FE;
+}
+{% endblock %}
 
-        .book-table th {
-            background-color: #F8FAFC;
-            color: #374151;
-            font-weight: 600;
-            font-size: 13px;
-            padding: 16px 24px;
-            border-bottom: 1px solid #E5E7EB;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
+{% block content %}
+<div class="page-header">
+    <h1>Library Books</h1>
+    <a href="{% url 'add-book' %}" class="btn-primary" style="background-color: #4F46E5; color: #FFFFFF; text-decoration: none; padding: 10px 20px; border-radius: 10px; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-plus"></i> Add New Book
+    </a>
+</div>
 
-        .book-table td {
-            padding: 16px 24px;
-            border-bottom: 1px solid #E5E7EB;
-            font-size: 14px;
-            color: #111827;
-        }
-
-        .book-table tbody tr {
-            transition: background-color 0.2s;
-        }
-
-        .book-table tbody tr:hover {
-            background-color: #F9FAFB;
-        }
-
-        /* Status Badges */
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 6px 12px;
-            border-radius: 9999px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .status-available {
-            background-color: #DCFCE7;
-            color: #166534;
-        }
-
-        .status-issued {
-            background-color: #FEF3C7;
-            color: #92400E;
-        }
-
-        /* Action Buttons inside Table */
-        .action-cell {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .btn-action {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 600;
-            border: none;
-            background: none;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-
-        .btn-edit {
-            color: #2563EB;
-        }
-
-        .btn-delete {
-            color: #EF4444;
-        }
-
-        .btn-action:hover {
-            opacity: 0.8;
-            text-decoration: underline;
-        }
-
-        /* Empty state styling */
-        .empty-row-cell {
-            text-align: center;
-            color: #6B7280;
-            padding: 40px !important;
-        }
-
-        /* Pagination placeholder at bottom */
-        .pagination-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 24px;
-            border-top: 1px solid #E5E7EB;
-            background-color: #FFFFFF;
-        }
-
-        .pagination-info {
-            font-size: 13px;
-            color: #6B7280;
-        }
-
-        .pagination-buttons {
-            display: flex;
-            gap: 8px;
-        }
-
-        .btn-page {
-            background-color: #FFFFFF;
-            border: 1px solid #D1D5DB;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-page:hover {
-            background-color: #F9FAFB;
-            border-color: #C7D2FE;
-        }
-    </style>
-</head>
-<body>
-
-    <!-- Top Navigation Bar -->
-    <header class="top-navbar">
-        <div class="logo-area">
-            <i class="fa-solid fa-book-open" style="color: #4F46E5;"></i> Library Management
-        </div>
-        <div class="user-area">
-            <i class="fa-regular fa-circle-user"></i> Affan
-        </div>
-    </header>
-
-    <!-- Sub Navigation Menu -->
-    <nav class="sub-navbar">
-        <ul class="nav-links">
-            <li><a href="#">Dashboard</a></li>
-            <li><a href="#" class="active">Books</a></li>
-            <li><a href="#">Users</a></li>
-            <li><a href="#">Settings</a></li>
-            <li><a href="{% url 'login' %}">Logout</a></li>
-        </ul>
-    </nav>
-
-    <!-- Workspace Area -->
-    <main class="container">
-        
-        <!-- Header -->
-        <div class="page-header">
-            <h1>Library Books</h1>
-        </div>
-
-        <!-- Dashboard Summary Stats Cards -->
-        <section class="stats-grid">
-            <!-- Total Books -->
-            <div class="stat-card">
-                <div class="stat-info">
-                    <h3>Total Books</h3>
-                    <div class="stat-number">{{ total_books }}</div>
-                </div>
-                <div class="stat-icon-box bg-books">
-                    <i class="fa-solid fa-book"></i>
-                </div>
-            </div>
-
-            <!-- Available -->
-            <div class="stat-card">
-                <div class="stat-info">
-                    <h3>Available</h3>
-                    <div class="stat-number">{{ available_books }}</div>
-                </div>
-                <div class="stat-icon-box bg-available">
-                    <i class="fa-solid fa-circle-check"></i>
-                </div>
-            </div>
-
-            <!-- Issued -->
-            <div class="stat-card">
-                <div class="stat-info">
-                    <h3>Issued</h3>
-                    <div class="stat-number">{{ issued_books }}</div>
-                </div>
-                <div class="stat-icon-box bg-issued">
-                    <i class="fa-solid fa-clock"></i>
-                </div>
-            </div>
-
-            <!-- Members -->
-            <div class="stat-card">
-                <div class="stat-info">
-                    <h3>Total Members</h3>
-                    <div class="stat-number">{{ total_members }}</div>
-                </div>
-                <div class="stat-icon-box bg-members">
-                    <i class="fa-solid fa-users"></i>
-                </div>
-            </div>
-        </section>
-
-        <!-- Search Bar and Add Action row -->
+<div class="controls-row">
+    <!-- Search Bar -->
     <form method="GET" action="{% url 'book-list' %}" class="search-box-wrapper">
-    <i class="fa-solid fa-magnifying-glass search-icon"></i>
-    <input type="text" name="q" placeholder="Search books by title or author..." value="{{ request.GET.q|default:'' }}">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input type="text" name="q" placeholder="Search books by title or author..." value="{{ request.GET.q|default:'' }}">
     </form>
+</div>
 
- 
+<!-- Main Books Table -->
+<div class="table-card">
+    <div class="table-responsive">
+        <table class="book-table">
+            <thead>
+                <tr>
+                    <th>Book Title</th>
+                    <th>Author</th>
+                    <th>Price</th>
+                    <th>Published</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for book in books %}
+                <tr>
+                    <td><strong>{{ book.title }}</strong></td>
+                    <td>{{ book.author }}</td>
+                    <td>${{ book.price }}</td>
+                    <td>{{ book.published_year }}</td>
+                    <td>
+                        {% if book.available %}
+                        <span class="status-badge status-available">
+                            <i class="fa-solid fa-circle-dot me-1"></i> Available
+                        </span>
+                        {% else %}
+                        <span class="status-badge status-issued">
+                            <i class="fa-solid fa-circle-dot me-1"></i> Issued
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="action-cell">
+                            {% if book.available %}
+                            <form method="POST" action="{% url 'borrow-book' book.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-action" style="color: #10B981; margin-right: 8px;">
+                                    <i class="fa-solid fa-hand-holding-hand"></i> Borrow
+                                </button>
+                            </form>
+                            {% else %}
+                            <form method="POST" action="{% url 'return-book' book.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-action" style="color: #F59E0B; margin-right: 8px;">
+                                    <i class="fa-solid fa-arrow-rotate-left"></i> Return
+                                </button>
+                            </form>
+                            {% endif %}
 
-        <!-- Main Books Table -->
-        <div class="table-card">
-            <div class="table-responsive">
-                <table class="book-table">
-                    <thead>
-                        <tr>
-                            <th>Book Title</th>
-                            <th>Author</th>
-                            <th>Category</th>
-                            <th>ISBN</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for book in books %}
-                        <tr>
-                            <td><strong>{{ book.title }}</strong></td>
-                            <td>{{ book.author }}</td>
-                            <!-- Model placeholders defaults for Category/ISBN -->
-                            <td>{{ book.category|default:"General" }}</td>
-                            <td>{{ book.isbn|default:"N/A" }}</td>
-                            <td>
-                                {% if book.available %}
-                                <span class="status-badge status-available">
-                                    <i class="fa-solid fa-circle-dot me-1"></i> Available
-                                </span>
-                                {% else %}
-                                <span class="status-badge status-issued">
-                                    <i class="fa-solid fa-circle-dot me-1"></i> Issued
-                                </span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <div class="action-cell">
-                                {% if book.available %}
-                                <form method="POST" action="{% url 'borrow-book' book.id %}" style="display:inline;">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn-action" style="color: #10B981; margin-right: 8px;">
-                                            <i class="fa-solid fa-hand-holding-hand"></i> Borrow
-                                        </button>
-                                    </form>
-                                    {% else %}
-                                    <form method="POST" action="{% url 'return-book' book.id %}" style="display:inline;">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn-action" style="color: #F59E0B; margin-right: 8px;">
-                                            <i class="fa-solid fa-arrow-rotate-left"></i> Return
-                                        </button>
-                                    </form>
-                                    {% endif %}
+                            <a href="{% url 'edit-book' book.id %}" class="btn-action btn-edit">
+                                <i class="fa-solid fa-pen"></i> Edit
+                            </a>
 
-                                    <a href="{% url 'edit-book' book.id %}" class="btn-action btn-edit">
-                                        <i class="fa-solid fa-pen"></i> Edit
-                                    </a>
+                            <form method="POST" action="{% url 'delete-book' book.id %}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete &quot;{{ book.title }}&quot;?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-action btn-delete">
+                                    <i class="fa-solid fa-trash-can"></i> Delete
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="empty-row-cell">
+                        <i class="fa-regular fa-folder-open mb-2" style="font-size: 24px; color: #9CA3AF; display: block;"></i>
+                        No books found matching the search criteria.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-                                    <form method="POST" action="{% url 'delete-book' book.id %}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete &quot;{{ book.title }}&quot;?');">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn-action btn-delete">
-                                            <i class="fa-solid fa-trash-can"></i> Delete
-                                        </button>
-                                    </form>
-                                </div>
-
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="6" class="empty-row-cell">
-                                <i class="fa-regular fa-folder-open mb-2" style="font-size: 24px; color: #9CA3AF; display: block;"></i>
-                                No books found in the database.
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Table Pagination block -->
-            <div class="pagination-container">
-                <div class="pagination-info">
-                    Showing <strong>1</strong> to <strong>{{ books|length }}</strong> of <strong>{{ books|length }}</strong> books
-                </div>
-                <div class="pagination-buttons">
-                    <button class="btn-page" disabled>Previous</button>
-                    <button class="btn-page" disabled>Next</button>
-                </div>
-            </div>
+    <!-- Table Pagination block -->
+    <div class="pagination-container">
+        <div class="pagination-info">
+            Showing <strong>1</strong> to <strong>{{ books|length }}</strong> of <strong>{{ books|length }}</strong> books
         </div>
-
-    </main>
-
-</body>
-</html>
+        <div class="pagination-buttons">
+            <button class="btn-page" disabled>Previous</button>
+            <button class="btn-page" disabled>Next</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

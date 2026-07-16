@@ -1,0 +1,288 @@
+{% extends 'books/base.html' %}
+
+{% block title %}Dashboard - Library System{% endblock %}
+
+{% block extra_css %}
+/* Stats grid stylesheet */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.stat-card {
+    background-color: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(15, 23, 42, 0.06);
+}
+
+.stat-info h3 {
+    font-size: 14px;
+    color: #6B7280;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.stat-info .stat-number {
+    font-size: 28px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.stat-icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.bg-books { background-color: #EEF2F6; color: #4F46E5; }
+.bg-available { background-color: #ECFDF5; color: #10B981; }
+.bg-issued { background-color: #FFFBEB; color: #F59E0B; }
+.bg-members { background-color: #EFF6FF; color: #3B82F6; }
+
+/* Dashboard layout grid */
+.dashboard-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+}
+
+@media (max-width: 900px) {
+    .dashboard-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+.card {
+    background-color: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+    margin-bottom: 24px;
+}
+
+.card-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Activity history styling */
+.history-list {
+    list-style: none;
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #F1F5F9;
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}
+
+.history-details {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.history-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #EFF6FF;
+    color: #3B82F6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+.history-text .book-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: #1F2937;
+}
+
+.history-text .borrower-name {
+    font-size: 12px;
+    color: #6B7280;
+}
+
+.history-time {
+    font-size: 12px;
+    color: #9CA3AF;
+    text-align: right;
+}
+
+.badge-status {
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.badge-active { background-color: #FFFBEB; color: #D97706; }
+.badge-returned { background-color: #ECFDF5; color: #059669; }
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Dashboard</h1>
+    <a href="{% url 'add-book' %}" class="btn-primary" style="background-color: #4F46E5; color: #FFFFFF; text-decoration: none; padding: 10px 20px; border-radius: 10px; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-plus"></i> Add New Book
+    </a>
+</div>
+
+<!-- Key Metric Statistics -->
+<section class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-info">
+            <h3>Total Books</h3>
+            <div class="stat-number">{{ total_books }}</div>
+        </div>
+        <div class="stat-icon-box bg-books">
+            <i class="fa-solid fa-book"></i>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-info">
+            <h3>Available</h3>
+            <div class="stat-number">{{ available_books }}</div>
+        </div>
+        <div class="stat-icon-box bg-available">
+            <i class="fa-solid fa-circle-check"></i>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-info">
+            <h3>Issued</h3>
+            <div class="stat-number">{{ issued_books }}</div>
+        </div>
+        <div class="stat-icon-box bg-issued">
+            <i class="fa-solid fa-clock"></i>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-info">
+            <h3>Total Members</h3>
+            <div class="stat-number">{{ total_members }}</div>
+        </div>
+        <div class="stat-icon-box bg-members">
+            <i class="fa-solid fa-users"></i>
+        </div>
+    </div>
+</section>
+
+<!-- Dashboard Main Layout -->
+<div class="dashboard-layout">
+    
+    <!-- Recent Borrows & Loans activity log -->
+    <div class="card">
+        <div class="card-title">
+            <span>Recent Activity</span>
+            <span style="font-size: 13px; font-weight: 500; color: #4F46E5;"><i class="fa-solid fa-clock-rotate-left"></i> Realtime Logs</span>
+        </div>
+        <ul class="history-list">
+            {% for loan in recent_loans %}
+            <li class="history-item">
+                <div class="history-details">
+                    <div class="history-icon">
+                        <i class="fa-solid fa-hand-holding-hand"></i>
+                    </div>
+                    <div class="history-text">
+                        <div class="book-title">{{ loan.book.title }}</div>
+                        <div class="borrower-name">Borrowed by <strong>{{ loan.user.username }}</strong></div>
+                    </div>
+                </div>
+                <div class="history-time">
+                    <div>{{ loan.borrowed_at|date:"M d, Y" }}</div>
+                    {% if loan.returned_at %}
+                    <span class="badge-status badge-returned">Returned</span>
+                    {% else %}
+                    <span class="badge-status badge-active">Issued</span>
+                    {% endif %}
+                </div>
+            </li>
+            {% empty %}
+            <li style="text-align: center; color: #9CA3AF; padding: 40px 0;">
+                <i class="fa-regular fa-folder-open" style="font-size: 28px; display: block; margin-bottom: 8px;"></i>
+                No active loans or return actions logged yet.
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Book Category Breakdown Graphic Chart -->
+    <div class="card">
+        <h3 class="card-title">Book Status Breakdown</h3>
+        <div style="position: relative; height: 220px; width: 100%;">
+            <canvas id="booksChart"></canvas>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Import Chart.js library to render the graphic widget -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const ctx = document.getElementById('booksChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Available', 'Issued'],
+                datasets: [{
+                    data: [{{ available_books }}, {{ issued_books }}],
+                    backgroundColor: ['#10B981', '#F59E0B'],
+                    borderWidth: 2,
+                    borderColor: '#FFFFFF'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: { family: 'Inter', size: 12 },
+                            usePointStyle: true
+                        }
+                    }
+                },
+                cutout: '70%'
+            }
+        });
+    });
+</script>
+{% endblock %}
