@@ -4,7 +4,7 @@ from .views import (
     BookListAPIView, add_book, book_list, edit_book, register, 
     login_view, delete_book, borrow_book, return_book,
     dashboard_view, users_list, settings_view, logout_view
-)
+)                
 
 urlpatterns = [
     # Redirect base index route to dashboard
@@ -15,8 +15,9 @@ urlpatterns = [
     path("settings/", settings_view, name="settings"),
     path("logout/", logout_view, name="logout"),
     
-    # API and other pages
-    path("api/", BookListAPIView.as_view(), name="book-list-api"),
+    
+    path("api/books/", BookListAPIView.as_view(), name="book-list-api"),
+
     path("add/", add_book, name="add-book"),
     path("edit/<int:id>/", edit_book, name="edit-book"),
     path("register/", register, name="register"),

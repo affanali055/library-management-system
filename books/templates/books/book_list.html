@@ -196,7 +196,6 @@
     </a>
 </div>
 
-<!-- Replace lines 199 to 205 in book_list.html with this: -->
 <div class="controls-row">
     <form method="GET" action="{% url 'book-list' %}" style="display: flex; gap: 12px; width: 100%; max-width: 600px; align-items: center;">
         
@@ -237,7 +236,16 @@
             <tbody>
                 {% for book in books %}
                 <tr>
-                    <td><strong>{{ book.title }}</strong></td>
+                    <td>
+                        <strong>{{ book.title }}</strong>
+                        {% for loan in book.loans.all %}
+                            {% if not loan.returned_at %}
+                                <div style="font-size: 12px; color: #6B7280; margin-top: 4px;">
+                                    <i class="fa-regular fa-calendar"></i> Due: {{ loan.due_date }} by <strong>{{ loan.user.username }}</strong>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </td>
                     <td>{{ book.author }}</td>
                     <td>${{ book.price }}</td>
                     <td>{{ book.published_year }}</td>
@@ -298,11 +306,20 @@
     <!-- Table Pagination block -->
     <div class="pagination-container">
         <div class="pagination-info">
-            Showing <strong>1</strong> to <strong>{{ books|length }}</strong> of <strong>{{ books|length }}</strong> books
+            Showing Page <strong>{{ books.number }}</strong> of <strong>{{ books.paginator.num_pages }}</strong>
         </div>
         <div class="pagination-buttons">
-            <button class="btn-page" disabled>Previous</button>
-            <button class="btn-page" disabled>Next</button>
+            {% if books.has_previous %}
+                <a href="?page={{ books.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" class="btn-page" style="text-decoration: none; color: inherit;">Previous</a>
+            {% else %}
+                <button class="btn-page" disabled>Previous</button>
+            {% endif %}
+
+            {% if books.has_next %}
+                <a href="?page={{ books.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" class="btn-page" style="text-decoration: none; color: inherit;">Next</a>
+            {% else %}
+                <button class="btn-page" disabled>Next</button>
+            {% endif %}
         </div>
     </div>
 </div>

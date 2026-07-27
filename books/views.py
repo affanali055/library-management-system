@@ -12,6 +12,8 @@ from .models import Book, BookLoan
 from .serializers import BookSerializer
 from .forms import BookForm, UserRegisterForm, LoginForm, UserSettingsForm
 from datetime import timedelta
+from django.core.paginator import Paginator
+
 
 
 class BookListAPIView(APIView):
@@ -28,7 +30,7 @@ def book_list(request):
     query = request.GET.get('q')
     category_filter = request.GET.get('category')
     
-    books = Book.objects.all()
+    books = Book.objects.all().order_by('id')
 
     # Apply text query search
     if query:
@@ -40,13 +42,18 @@ def book_list(request):
     if category_filter and category_filter != 'All':
         books = books.filter(category=category_filter)
 
+    # Add pagination: Show 5 books per page
+    paginator = Paginator(books, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     total_books = Book.objects.count()
     available_books = Book.objects.filter(available=True).count()
     issued_books = Book.objects.filter(available=False).count()
     total_members = User.objects.count()
     
     context = {
-        "books": books,
+        "books": page_obj,  # Pass the paginated pages instead of books list
         "total_books": total_books,
         "available_books": available_books,
         "issued_books": issued_books,
@@ -56,6 +63,7 @@ def book_list(request):
         "selected_category": category_filter or 'All'
     }
     return render(request, "books/book_list.html", context)
+
 
 
 
@@ -151,6 +159,12 @@ def delete_book(request, id):
 
 @login_required
 def borrow_book(request, id):
+    # Check current active borrowing limit
+    active_loans_count = BookLoan.objects.filter(user=request.user, returned_at__isnull=True).count()
+    if active_loans_count >= 3:
+        messages.error(request, "Borrow Limit Reached: You cannot borrow more than 3 books at a time. Please return a book first.")
+        return redirect("book-list")
+
     book = get_object_or_404(Book, id=id)
     if book.available:
         book.available = False
@@ -265,8 +279,21 @@ def settings_view(request):
     else:
         form = UserSettingsForm(instance=request.user)
         
+    # Fetch all active loans for the current logged in user
+    active_loans = request.user.loans.filter(returned_at__isnull=True)
+    
+    # Calculate accrued fines dynamically ($1.00 fine per day overdue)
+    today = timezone.now().date()
+    total_fines = 0.0
+    for loan in active_loans:
+        if loan.due_date and loan.due_date < today:
+            days_overdue = (today - loan.due_date).days
+            total_fines += days_overdue * 1.00
+        
     context = {
         "form": form,
+        "active_loans": active_loans,
+        "total_fines": total_fines,
         "active_tab": "settings",
     }
     return render(request, "books/setting.html", context)

@@ -271,58 +271,12 @@
 
 </div> <!-- This closing div on line 251 stays here -->
 {% endblock %}
-
-
 {% block extra_js %}
-// Add this script inside document.addEventListener("DOMContentLoaded", function() { ... }):
-
-const catCtx = document.getElementById('categoryChart').getContext('2d');
-new Chart(catCtx, {
-    type: 'bar',
-    data: {
-        labels: ['Fiction', 'Science', 'History', 'Biography', 'General'],
-        datasets: [{
-            label: 'Books Count',
-            data: [
-                {{ fiction_count }}, 
-                {{ science_count }}, 
-                {{ history_count }}, 
-                {{ biography_count }}, 
-                {{ general_count }}
-            ],
-            backgroundColor: [
-                'rgba(79, 70, 229, 0.8)', // Indigo
-                'rgba(16, 185, 129, 0.8)', // Emerald
-                'rgba(245, 158, 11, 0.8)', // Amber
-                'rgba(59, 130, 246, 0.8)', // Blue
-                'rgba(107, 114, 128, 0.8)' // Gray
-            ],
-            borderRadius: 6
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: { display: false }
-        },
-        scales: {
-            y: {
-                beginAtZero: true,
-                grid: { color: '#F1F5F9' },
-                ticks: { precision: 0 }
-            },
-            x: {
-                grid: { display: false }
-            }
-        }
-    }
-});
-
 <!-- Import Chart.js library to render the graphic widget -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+        // Books Chart (Doughnut)
         const ctx = document.getElementById('booksChart').getContext('2d');
         new Chart(ctx, {
             type: 'doughnut',
@@ -350,6 +304,52 @@ new Chart(catCtx, {
                 cutout: '70%'
             }
         });
+
+        // Category Chart (Bar Chart)
+        const catCtx = document.getElementById('categoryChart').getContext('2d');
+        new Chart(catCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Fiction', 'Science', 'History', 'Biography', 'General'],
+                datasets: [{
+                    label: 'Books Count',
+                    data: [
+                        {{ fiction_count }}, 
+                        {{ science_count }}, 
+                        {{ history_count }}, 
+                        {{ biography_count }}, 
+                        {{ general_count }}
+                    ],
+                    backgroundColor: [
+                        'rgba(79, 70, 229, 0.8)', // Indigo
+                        'rgba(16, 185, 129, 0.8)', // Emerald
+                        'rgba(245, 158, 11, 0.8)', // Amber
+                        'rgba(59, 130, 246, 0.8)', // Blue
+                        'rgba(107, 114, 128, 0.8)' // Gray
+                    ],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#F1F5F9' },
+                        ticks: { precision: 0 }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
     });
 </script>
 {% endblock %}
+
+
